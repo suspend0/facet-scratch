@@ -1,6 +1,7 @@
 package ca.hullabaloo.facets;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -13,7 +14,9 @@ class FExprParser {
     // can be any value, as long as it's less than zero and doesn't conflict with any of StreamTokenizer.TT_*
     private static final int ONE_TOKEN = -6;
 
-    /** @see ca.hullabaloo.facets.FExpr#compile(String) */
+    /**
+     * @see ca.hullabaloo.facets.FExpr#compile(String)
+     */
     FExpr parse(String expression) {
         try {
             StreamTokenizer s = new StreamTokenizer(new StringReader(expression));
@@ -21,9 +24,9 @@ class FExprParser {
             s.wordChars('a', 'z');
             s.wordChars('A', 'Z');
             s.wordChars('0', '9');
-            s.wordChars(':',':');
-            s.wordChars('_','_');
-            s.wordChars('/','/');
+            s.wordChars(':', ':');
+            s.wordChars('_', '_');
+            s.wordChars('/', '/');
             s.wordChars(128 + 32, 255);
             s.whitespaceChars(0, ' ');
             s.quoteChar('"');
@@ -38,7 +41,7 @@ class FExprParser {
             FExpr.Node root = parseGroup(s, StreamTokenizer.TT_EOF);
             return new FExpr(root);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(expression,e);
+            throw new IllegalArgumentException(expression, e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -77,7 +80,6 @@ class FExprParser {
                 break;
             }
         }
-        if (op == '\0' && tokens.size() == 1) return tokens.get(0);
         return create(op, tokens);
     }
 
@@ -93,6 +95,9 @@ class FExprParser {
                 return new And(c);
             case '|':
                 return new Or(c);
+            case '\0':
+                Preconditions.checkState(c.size() == 1);
+                return c.get(0);
             default:
                 throw new AssertionError(op);
         }

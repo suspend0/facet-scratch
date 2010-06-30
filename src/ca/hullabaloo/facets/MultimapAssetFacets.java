@@ -1,18 +1,19 @@
 package ca.hullabaloo.facets;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.*;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
 
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
-public class MultimapAssetFacets implements AssetFacets, FExprEval<Set<Asset>> {
+public class MultimapAssetFacets implements AssetFacets {
     private SetMultimap<Facet, Asset> nodeFacets = HashMultimap.create();
+    private Evaluator evaluator = new Evaluator();
 
     public void add(Asset asset, Facet facet) {
-        nodeFacets.put(facet,asset);
+        nodeFacets.put(facet, asset);
     }
 
     public Set<Asset> find(String facetExpression) {
@@ -21,7 +22,7 @@ public class MultimapAssetFacets implements AssetFacets, FExprEval<Set<Asset>> {
     }
 
     public Set<Asset> find(FExpr expr) {
-        return expr.evaluate(this);
+        return expr.evaluate(evaluator);
     }
 
     public Set<Asset> findAny(final Iterable<Facet> finding) {
@@ -40,29 +41,31 @@ public class MultimapAssetFacets implements AssetFacets, FExprEval<Set<Asset>> {
         return nodeFacets.containsEntry(facet, asset);
     }
 
-    public Set<Asset> and(Iterable<FExpr.Node> nodes) {
-        Iterator<FExpr.Node> iter = nodes.iterator();
-        Set<Asset> result = iter.next().evaluate(this);
-        while(iter.hasNext())
-            result.retainAll(iter.next().evaluate(this));
-        return result;
-    }
+    private class Evaluator implements FExprEval<Set<Asset>> {
+        public Set<Asset> and(Iterable<FExpr.Node> nodes) {
+            Iterator<FExpr.Node> iter = nodes.iterator();
+            Set<Asset> result = iter.next().evaluate(this);
+            while (iter.hasNext())
+                result.retainAll(iter.next().evaluate(this));
+            return result;
+        }
 
-    public Set<Asset> or(Iterable<FExpr.Node> nodes) {
-        Set<Asset> result = Sets.newHashSet();
-        for(FExpr.Node node : nodes)
-            result.addAll(node.evaluate(this));
-        return result;
-    }
+        public Set<Asset> or(Iterable<FExpr.Node> nodes) {
+            Set<Asset> result = Sets.newHashSet();
+            for (FExpr.Node node : nodes)
+                result.addAll(node.evaluate(this));
+            return result;
+        }
 
-    public Set<Asset> not(FExpr.Node node) {
-        Set<Asset> val = node.evaluate(this);
-        Set<Asset> results = Sets.newHashSet(nodeFacets.values());
-        results.removeAll(val);
-        return results;
-    }
+        public Set<Asset> not(FExpr.Node node) {
+            Set<Asset> val = node.evaluate(this);
+            Set<Asset> results = Sets.newHashSet(nodeFacets.values());
+            results.removeAll(val);
+            return results;
+        }
 
-    public Set<Asset> value(String facet) {
-        return nodeFacets.get(Facet.create(facet));
+        public Set<Asset> value(String facet) {
+            return nodeFacets.get(Facet.create(facet));
+        }
     }
 }

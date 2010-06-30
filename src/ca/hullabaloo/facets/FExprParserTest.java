@@ -13,7 +13,7 @@ public class FExprParserTest extends TestCase {
         assertEquals(expected, actual);
     }
 
-    public void testParen() throws IOException {
+    public void testParent() throws IOException {
         String actual = p.parse("(CS:foo)").toString();
         String expected = "CS:foo";
         assertEquals(expected, actual);
@@ -70,6 +70,12 @@ public class FExprParserTest extends TestCase {
     public void testNotParens() throws IOException {
         String actual = p.parse("!(CS:foo||bar)").toString();
         String expected = "!(CS:foo || bar)";
+        assertEquals(expected, actual);
+    }
+
+    public void testMultipleParens() throws IOException {
+        String actual = p.parse("(a && b) || (c&&d)").toString();
+        String expected = "(a && b) || (c && d)";
         assertEquals(expected, actual);
     }
 }
