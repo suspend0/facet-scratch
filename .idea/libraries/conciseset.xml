@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="conciseset">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/extendedset_1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
