@@ -8,17 +8,17 @@ ca.hullabaloo.facets.FExprParser implements a simple grammer
 
 We run the same FExpr over three types of asset->facet storage
 
- * src.ca.hullabaloo.facets.MultimapAssetFacets
+ * ca.hullabaloo.facets.MultimapAssetFacets
     Uses a SetMultimap from guava-libraries to store the associations,
     and the query basically does union/intersect on the resulting sets
 
- * src.ca.hullabaloo.facets.BitSetAssetFacets
+ * ca.hullabaloo.facets.BitSetAssetFacets
     Uses a Map of Facet to java.util.Bitset, with one bit set for
     each asset assigned the facet.  The query basically does bitwise
     ANDs and ORs over the BitSet
 
- * src.ca.hullabaloo.facets.CompressedAssetFacets
-    Similar to the previous, except this Uses a map based on a 
+ * ca.hullabaloo.facets.CompressedAssetFacets
+    Similar to the previous, except this uses a map based on a 
     patricia trie, with the idea that keys like facet:foo and 
     facet:bar will take less space in memory (at a computational 
     cost).  Also, the bitset is an RLE-compressed bitset which 
